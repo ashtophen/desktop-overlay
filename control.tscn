@@ -1,0 +1,203 @@
+[gd_scene format=3 uid="uid://5xi381h25aaw"]
+
+[ext_resource type="Script" uid="uid://8ft47ej0hvh0" path="res://menu_hotkey_text.gd" id="1_0fbet"]
+[ext_resource type="Script" uid="uid://bql8b0l6rkgwj" path="res://menu.gd" id="1_62e2m"]
+[ext_resource type="Script" uid="uid://qysy75xix803" path="res://menu_bg.gd" id="2_ee4bf"]
+[ext_resource type="Script" uid="uid://wct72ev0docv" path="res://settings_btn.gd" id="3_qtu10"]
+[ext_resource type="Script" uid="uid://c1da1msqx477f" path="res://element_menu.gd" id="5_6a6wx"]
+[ext_resource type="Script" uid="uid://bttqsgby0duom" path="res://button.gd" id="5_kbped"]
+[ext_resource type="Script" uid="uid://v6yorlnlpfjv" path="res://add_image_btn.gd" id="6_fj5cn"]
+[ext_resource type="Script" uid="uid://pby251upeakx" path="res://file_dialog.gd" id="7_iy58a"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_kbped"]
+outline_size = 2
+outline_color = Color(0, 0, 0, 1)
+
+[sub_resource type="InputEventAction" id="InputEventAction_fj5cn"]
+action = &"Toggle Menu"
+
+[sub_resource type="Shortcut" id="Shortcut_iy58a"]
+events = [SubResource("InputEventAction_fj5cn")]
+
+[node name="Control" type="Control" unique_id=722111916]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="menu" type="CenterContainer" parent="." unique_id=1938298883]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_62e2m")
+
+[node name="menu_bg" type="ColorRect" parent="menu" unique_id=603948033]
+custom_minimum_size = Vector2(600, 400)
+layout_mode = 2
+color = Color(0.34117648, 0.27450982, 0.39607844, 0.3254902)
+script = ExtResource("2_ee4bf")
+
+[node name="Hotkey_Dialog" type="HBoxContainer" parent="menu/menu_bg" unique_id=677257452]
+layout_mode = 0
+offset_left = 61.0
+offset_top = 7.0
+offset_right = 278.0
+offset_bottom = 47.0
+
+[node name="Press_" type="Label" parent="menu/menu_bg/Hotkey_Dialog" unique_id=2028997583]
+layout_mode = 2
+text = "To Toggle This Menu Press: "
+
+[node name="Hotkey" type="Label" parent="menu/menu_bg/Hotkey_Dialog" unique_id=2134361422]
+layout_mode = 2
+script = ExtResource("1_0fbet")
+
+[node name="settings_btn" type="Button" parent="menu/menu_bg" unique_id=1405295615]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -35.0
+offset_top = -15.5
+offset_right = 35.0
+offset_bottom = 15.5
+grow_horizontal = 2
+grow_vertical = 2
+text = "Settings"
+script = ExtResource("3_qtu10")
+
+[node name="Settings_popup" type="PopupPanel" parent="menu/menu_bg/settings_btn" unique_id=1977727088]
+oversampling_override = 1.0
+title = "Settings"
+initial_position = 4
+size = Vector2i(600, 300)
+script = ExtResource("5_6a6wx")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="menu/menu_bg/settings_btn/Settings_popup" unique_id=2001598172]
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 596.0
+offset_bottom = 296.0
+
+[node name="Spacer4" type="Control" parent="menu/menu_bg/settings_btn/Settings_popup/HBoxContainer" unique_id=1279497066]
+custom_minimum_size = Vector2(10, 0)
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="menu/menu_bg/settings_btn/Settings_popup/HBoxContainer" unique_id=1131738634]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ColorPickerButton" type="ColorPickerButton" parent="menu/menu_bg/settings_btn/Settings_popup/HBoxContainer/VBoxContainer" unique_id=956795531]
+layout_mode = 2
+size_flags_vertical = 0
+text = "Change Menu Color"
+flat = true
+color = Color(0.61960787, 0.61960787, 0.61960787, 1)
+
+[node name="Label" type="Label" parent="menu/menu_bg/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/ColorPickerButton" unique_id=1113012493]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -76.0
+offset_top = -11.5
+offset_right = 76.0
+offset_bottom = 11.5
+grow_horizontal = 2
+grow_vertical = 2
+text = "Change Menu Color"
+label_settings = SubResource("LabelSettings_kbped")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="hotkey_list" type="VBoxContainer" parent="menu/menu_bg/settings_btn/Settings_popup/HBoxContainer/VBoxContainer" unique_id=764929483]
+layout_mode = 2
+
+[node name="Titles" type="HBoxContainer" parent="menu/menu_bg/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/hotkey_list" unique_id=1325568785]
+layout_mode = 2
+
+[node name="Spacer3" type="Control" parent="menu/menu_bg/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/hotkey_list/Titles" unique_id=340800244]
+custom_minimum_size = Vector2(10, 0)
+layout_mode = 2
+
+[node name="Label" type="Label" parent="menu/menu_bg/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/hotkey_list/Titles" unique_id=747426655]
+layout_mode = 2
+text = "Default Hotkey:"
+
+[node name="Spacer" type="Control" parent="menu/menu_bg/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/hotkey_list/Titles" unique_id=1825563849]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label2" type="Label" parent="menu/menu_bg/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/hotkey_list/Titles" unique_id=1129044168]
+layout_mode = 2
+text = "Create Custom Hotkey:"
+
+[node name="Spacer2" type="Control" parent="menu/menu_bg/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/hotkey_list/Titles" unique_id=1735048770]
+custom_minimum_size = Vector2(10, 0)
+layout_mode = 2
+
+[node name="Menu_Hotkey_Changer" type="HBoxContainer" parent="menu/menu_bg/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/hotkey_list" unique_id=1925524041]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="menu/menu_bg/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/hotkey_list/Menu_Hotkey_Changer" unique_id=869305495]
+layout_mode = 2
+text = "Alt+Period"
+script = ExtResource("1_0fbet")
+
+[node name="Spacer" type="Control" parent="menu/menu_bg/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/hotkey_list/Menu_Hotkey_Changer" unique_id=1965708397]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Control" type="Control" parent="menu/menu_bg/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/hotkey_list/Menu_Hotkey_Changer" unique_id=1144402106]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Button" type="Button" parent="menu/menu_bg/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/hotkey_list/Menu_Hotkey_Changer/Control" unique_id=414520639]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -51.5
+offset_right = 51.5
+offset_bottom = 31.0
+grow_horizontal = 2
+shortcut = SubResource("Shortcut_iy58a")
+text = "New Hotkey"
+script = ExtResource("5_kbped")
+
+[node name="Spacer3" type="Control" parent="menu/menu_bg/settings_btn/Settings_popup/HBoxContainer" unique_id=539060920]
+custom_minimum_size = Vector2(10, 0)
+layout_mode = 2
+
+[node name="add_image_btn" type="Button" parent="menu/menu_bg" unique_id=161051778]
+layout_mode = 0
+offset_left = 213.0
+offset_top = 226.0
+offset_right = 390.0
+offset_bottom = 257.0
+text = "Add Image To Overlay"
+script = ExtResource("6_fj5cn")
+
+[node name="FileDialog" type="FileDialog" parent="." unique_id=1225355020]
+oversampling_override = 1.0
+title = "Open a File"
+position = Vector2i(100, 100)
+size = Vector2i(780, 560)
+file_mode = 0
+access = 2
+filters = PackedStringArray("*.png", "*.jpg", "*.jpeg", "*.svg", "*.gif")
+script = ExtResource("7_iy58a")
+
+[connection signal="pressed" from="menu/menu_bg/settings_btn" to="menu/menu_bg/settings_btn" method="_on_pressed"]
+[connection signal="color_changed" from="menu/menu_bg/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/ColorPickerButton" to="menu/menu_bg" method="_on_color_picker_button_color_changed"]
+[connection signal="pressed" from="menu/menu_bg/add_image_btn" to="menu/menu_bg/add_image_btn" method="_on_pressed"]
+[connection signal="file_selected" from="FileDialog" to="FileDialog" method="_on_file_selected"]
