@@ -114,7 +114,7 @@ func _ready():
 	vbox.add_child(chromakey_switch)
 	
 	chroma_vbox = VBoxContainer.new()
-	chroma_vbox.visible = false
+	chroma_vbox.hide()
 	var color_picker_label = Label.new()
 	color_picker_label.text = "Color For Chromakeying"
 	color_picker = ColorPicker.new()
@@ -142,10 +142,10 @@ func _on_color_picker_color_changed(color: Color):
 	
 func _on_chromakey_switch_toggled(is_on: bool):
 	if is_on:
-		chroma_vbox.visible = true
+		chroma_vbox.show()
 		self.material = my_material
 	else:
-		chroma_vbox.visible = false
+		chroma_vbox.hide()
 		self.material = null
 
 func _on_delete_element_btn_pressed():
