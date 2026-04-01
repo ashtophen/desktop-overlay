@@ -34,7 +34,7 @@ func set_img(file, tex_rect: TextureRect = TextureRect.new()) -> TextureRect:
 	var image = Image.new()
 	var image_texture = ImageTexture.new()
 	var gif
-	if file.get_extension() == "gif":
+	if file.get_extension().to_lower() == "gif":
 		gif = GifManager.animated_texture_from_file(file)
 	else:
 		

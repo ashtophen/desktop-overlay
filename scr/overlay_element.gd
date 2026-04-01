@@ -75,6 +75,16 @@ func _ready():
 	change_texture_btn.text = "Change Texture"
 		
 	var delete_element_btn = Button.new()
+	var delete_stylebox_normal = delete_element_btn.get_theme_stylebox("normal").duplicate()
+	#delete_stylebox_normal.border_width_top = 3
+	delete_stylebox_normal.bg_color = Color(0.159, 0.029, 0.015, 0.851)
+	delete_element_btn.add_theme_stylebox_override("normal", delete_stylebox_normal)
+	# delete_element_btn.remove_theme_stylebox_override("normal")
+	delete_element_btn.text = "Remove From Overlay"
+	vbox.add_child(delete_element_btn)
+	delete_element_btn.pressed.connect(_on_delete_element_btn_pressed)
+func _on_delete_element_btn_pressed():
+	queue_free()
 		
 func _on_file_selected(path):
 	Globals.set_img(path, self as TextureRect)
@@ -83,7 +93,7 @@ func _on_file_selected(path):
 		speed_slider_label = Label.new()
 		speed_slider_label.text = "Speed: %s" %self.texture.speed_scale
 		vbox.add_child(speed_slider_label)
-		vbox.move_child(speed_slider_label, 2)
+		vbox.move_child(speed_slider_label, 3)
 	
 		speed_slider = HSlider.new()
 		speed_slider.custom_minimum_size = Vector2(250, 0)
@@ -92,7 +102,7 @@ func _on_file_selected(path):
 		speed_slider.step = .1
 		speed_slider.value = self.texture.speed_scale
 		vbox.add_child(speed_slider)
-		vbox.move_child(speed_slider, 3)
+		vbox.move_child(speed_slider, 4)
 		speed_slider.value_changed.connect(_on_speed_slider_changed)
 
 func _on_change_texture_btn_pressed():
