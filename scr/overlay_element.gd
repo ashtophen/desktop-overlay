@@ -11,11 +11,33 @@ var _menu_just_closed = false
 var scale_slider: HSlider
 var speed_slider: HSlider
 var file_dialog: FileDialog
+var chromakey_switch: CheckButton
+var chroma_vbox: VBoxContainer
+var color_picker: ColorPicker
+
+### Shader Variables ###
+var shader_code = """
+shader_type canvas_item;
+
+uniform vec4 chroma_key : source_color = vec4(0.0, 1.0, 0.0, 1.0);
+uniform float precision : hint_range(0.0, 1.0) = 0.1;
+
+void fragment() {
+	vec4 tex_color = texture(TEXTURE, UV);
+	float dist = distance(tex_color.rgb, chroma_key.rgb);
+	if (dist < precision) {
+		tex_color.a = 0.0;
+	}
+	COLOR = tex_color;
+}
+"""
+var my_shader: Shader
+var my_material: ShaderMaterial
 
 func _ready():
 	file_dialog = FileDialog.new()
 	file_dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
-	file_dialog.filters = PackedStringArray(["*.png","*.jpg","*.jpeg","*.svg","*.gif", "Image Files"])
+	file_dialog.filters = PackedStringArray(["*.png","*.jpg","*.jpeg","*.svg","*.gif", "Image Files"]) # Image Files on the end there mayyyyy be causing some issues
 	file_dialog.size = Vector2(780,560)
 	file_dialog.position = Vector2i(200, 200)
 	file_dialog.access = FileDialog.ACCESS_FILESYSTEM
@@ -83,6 +105,49 @@ func _ready():
 	delete_element_btn.text = "Remove From Overlay"
 	vbox.add_child(delete_element_btn)
 	delete_element_btn.pressed.connect(_on_delete_element_btn_pressed)
+	
+	### Shader Code For Chromakeying ###
+	
+	chromakey_switch = CheckButton.new()
+	chromakey_switch.text = "Enable Chromakeying"
+	chromakey_switch.toggled.connect(_on_chromakey_switch_toggled)
+	vbox.add_child(chromakey_switch)
+	
+	chroma_vbox = VBoxContainer.new()
+	chroma_vbox.visible = false
+	var color_picker_label = Label.new()
+	color_picker_label.text = "Color For Chromakeying"
+	color_picker = ColorPicker.new()
+	color_picker.color_changed.connect(_on_color_picker_color_changed)
+	chroma_vbox.add_child(color_picker_label)
+	chroma_vbox.add_child(color_picker)
+	
+	vbox.add_child(chroma_vbox)
+	
+	
+	my_shader = Shader.new()
+	my_shader.code = shader_code
+
+	my_material = ShaderMaterial.new()
+	my_material.shader = my_shader
+
+	# self.material = my_material
+
+	
+	# my_material.set_shader_parameter("chroma_key", Color(0.0, 0.0, 0.0, 1.0))
+	# my_material.set_shader_parameter("precision", 0.15)
+	
+func _on_color_picker_color_changed(color: Color):
+	my_material.set_shader_parameter("chroma_key", color)
+	
+func _on_chromakey_switch_toggled(is_on: bool):
+	if is_on:
+		chroma_vbox.visible = true
+		self.material = my_material
+	else:
+		chroma_vbox.visible = false
+		self.material = null
+
 func _on_delete_element_btn_pressed():
 	queue_free()
 		
