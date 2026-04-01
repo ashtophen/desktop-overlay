@@ -1,4 +1,4 @@
-extends Control
+extends TextureRect
 
 var dragging = false
 var click_offset = Vector2i.ZERO
@@ -8,12 +8,24 @@ var menu: PopupPanel
 var scale_slider_label: Label
 var speed_slider_label: Label
 var _menu_just_closed = false
+var scale_slider: HSlider
+var speed_slider: HSlider
+var file_dialog: FileDialog
 
 func _ready():
+	file_dialog = FileDialog.new()
+	file_dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
+	file_dialog.filters = PackedStringArray(["*.png","*.jpg","*.jpeg","*.svg","*.gif", "Image Files"])
+	file_dialog.size = Vector2(780,560)
+	file_dialog.position = Vector2i(200, 200)
+	file_dialog.access = FileDialog.ACCESS_FILESYSTEM
+	file_dialog.file_selected.connect(_on_file_selected)
+	add_child(file_dialog)
+	
 	item_rect_changed.connect(_on_item_rect_changed)
 	_on_item_rect_changed()
 	menu = PopupPanel.new()
-	menu.set_script(load("res://element_menu.gd"))
+	menu.set_script(load("res://scr/element_menu.gd"))
 	menu.popup_hide.connect(_on_menu_hidden)
 	add_child(menu)
 	
@@ -28,7 +40,7 @@ func _ready():
 	scale_slider_label.text = "Scale: %s" %self.scale.x
 	vbox.add_child(scale_slider_label)
 	
-	var scale_slider = HSlider.new()
+	scale_slider = HSlider.new()
 	scale_slider.custom_minimum_size = Vector2(250, 0)
 	scale_slider.min_value = 0.1
 	scale_slider.max_value = 10
@@ -42,21 +54,56 @@ func _ready():
 		speed_slider_label.text = "Speed: %s" %self.texture.speed_scale
 		vbox.add_child(speed_slider_label)
 	
-		var speed_slider = HSlider.new()
+		speed_slider = HSlider.new()
 		speed_slider.custom_minimum_size = Vector2(250, 0)
 		speed_slider.min_value = .1
 		speed_slider.max_value = 10
-		speed_slider.step = 1
+		speed_slider.step = .1
 		speed_slider.value = self.texture.speed_scale
 		vbox.add_child(speed_slider)
 		speed_slider.value_changed.connect(_on_speed_slider_changed)
 		
-		var reset_element_btn = Button.new()
+	var reset_btn = Button.new()
+	vbox.add_child(reset_btn)
+	reset_btn.pressed.connect(_on_reset_btn_pressed)
+	reset_btn.text = "Reset"
 		
-		var change_texture_btn = Button.new()
 		
-		var delete_element_btn = Button.new()
+	var change_texture_btn = Button.new()
+	vbox.add_child(change_texture_btn)
+	change_texture_btn.pressed.connect(_on_change_texture_btn_pressed)
+	change_texture_btn.text = "Change Texture"
 		
+	var delete_element_btn = Button.new()
+		
+func _on_file_selected(path):
+	Globals.set_img(path, self as TextureRect)
+	var vbox = menu.get_child(0)
+	if self.texture is AnimatedTexture:
+		speed_slider_label = Label.new()
+		speed_slider_label.text = "Speed: %s" %self.texture.speed_scale
+		vbox.add_child(speed_slider_label)
+		vbox.move_child(speed_slider_label, 2)
+	
+		speed_slider = HSlider.new()
+		speed_slider.custom_minimum_size = Vector2(250, 0)
+		speed_slider.min_value = .1
+		speed_slider.max_value = 10
+		speed_slider.step = .1
+		speed_slider.value = self.texture.speed_scale
+		vbox.add_child(speed_slider)
+		vbox.move_child(speed_slider, 3)
+		speed_slider.value_changed.connect(_on_speed_slider_changed)
+
+func _on_change_texture_btn_pressed():
+	#if speed_slider == HSlider.new():
+	#	speed_slider.value = 1
+	scale_slider.value = 1
+	file_dialog.popup()
+	
+
+func _on_reset_btn_pressed():
+	scale_slider.value = 1 
 func _on_menu_hidden():
 	_menu_just_closed = true
 	await get_tree().process_frame
@@ -65,7 +112,7 @@ func _on_menu_hidden():
 	
 
 func _on_scale_slider_changed(value):
-	print(menu.visible)
+	#print(menu.visible)
 	scale_slider_label.text = "Scale: %s" %value
 	self.scale.x = value
 	self.scale.y = value
@@ -82,7 +129,7 @@ func _gui_input(event):
 			dragging = false
 			return
 		if event.button_index == MOUSE_BUTTON_LEFT:
-			print("Left Click!")
+			#print("Left Click!")
 			if event.pressed:
 				dragging = false
 				click_start_pos = event.global_position

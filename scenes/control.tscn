@@ -1,13 +1,13 @@
 [gd_scene format=3 uid="uid://5xi381h25aaw"]
 
-[ext_resource type="Script" uid="uid://8ft47ej0hvh0" path="res://menu_hotkey_text.gd" id="1_0fbet"]
-[ext_resource type="Script" uid="uid://bql8b0l6rkgwj" path="res://menu.gd" id="1_62e2m"]
-[ext_resource type="Script" uid="uid://qysy75xix803" path="res://menu_bg.gd" id="2_ee4bf"]
-[ext_resource type="Script" uid="uid://wct72ev0docv" path="res://settings_btn.gd" id="3_qtu10"]
-[ext_resource type="Script" uid="uid://c1da1msqx477f" path="res://element_menu.gd" id="5_6a6wx"]
-[ext_resource type="Script" uid="uid://bttqsgby0duom" path="res://button.gd" id="5_kbped"]
-[ext_resource type="Script" uid="uid://v6yorlnlpfjv" path="res://add_image_btn.gd" id="6_fj5cn"]
-[ext_resource type="Script" uid="uid://pby251upeakx" path="res://file_dialog.gd" id="7_iy58a"]
+[ext_resource type="Script" uid="uid://bql8b0l6rkgwj" path="res://scr/menu.gd" id="1_1p5nq"]
+[ext_resource type="Script" uid="uid://qysy75xix803" path="res://scr/menu_bg.gd" id="2_hob4j"]
+[ext_resource type="Script" uid="uid://8ft47ej0hvh0" path="res://scr/menu_hotkey_text.gd" id="3_01bab"]
+[ext_resource type="Script" uid="uid://wct72ev0docv" path="res://scr/settings_btn.gd" id="4_exs80"]
+[ext_resource type="Script" uid="uid://c1da1msqx477f" path="res://scr/element_menu.gd" id="5_kql7n"]
+[ext_resource type="Script" uid="uid://bttqsgby0duom" path="res://scr/button.gd" id="6_tac8f"]
+[ext_resource type="Script" uid="uid://v6yorlnlpfjv" path="res://scr/add_image_btn.gd" id="7_vb5ih"]
+[ext_resource type="Script" uid="uid://pby251upeakx" path="res://scr/file_dialog.gd" id="8_6pn8l"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_kbped"]
 outline_size = 2
@@ -34,13 +34,13 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_62e2m")
+script = ExtResource("1_1p5nq")
 
 [node name="menu_bg" type="ColorRect" parent="menu" unique_id=603948033]
 custom_minimum_size = Vector2(600, 400)
 layout_mode = 2
 color = Color(0.34117648, 0.27450982, 0.39607844, 0.3254902)
-script = ExtResource("2_ee4bf")
+script = ExtResource("2_hob4j")
 
 [node name="Hotkey_Dialog" type="HBoxContainer" parent="menu/menu_bg" unique_id=677257452]
 layout_mode = 0
@@ -55,9 +55,10 @@ text = "To Toggle This Menu Press: "
 
 [node name="Hotkey" type="Label" parent="menu/menu_bg/Hotkey_Dialog" unique_id=2134361422]
 layout_mode = 2
-script = ExtResource("1_0fbet")
+script = ExtResource("3_01bab")
 
 [node name="settings_btn" type="Button" parent="menu/menu_bg" unique_id=1405295615]
+visible = false
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -71,14 +72,14 @@ offset_bottom = 15.5
 grow_horizontal = 2
 grow_vertical = 2
 text = "Settings"
-script = ExtResource("3_qtu10")
+script = ExtResource("4_exs80")
 
 [node name="Settings_popup" type="PopupPanel" parent="menu/menu_bg/settings_btn" unique_id=1977727088]
 oversampling_override = 1.0
 title = "Settings"
 initial_position = 4
 size = Vector2i(600, 300)
-script = ExtResource("5_6a6wx")
+script = ExtResource("5_kql7n")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="menu/menu_bg/settings_btn/Settings_popup" unique_id=2001598172]
 offset_left = 4.0
@@ -151,7 +152,7 @@ layout_mode = 2
 [node name="Label" type="Label" parent="menu/menu_bg/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/hotkey_list/Menu_Hotkey_Changer" unique_id=869305495]
 layout_mode = 2
 text = "Alt+Period"
-script = ExtResource("1_0fbet")
+script = ExtResource("3_01bab")
 
 [node name="Spacer" type="Control" parent="menu/menu_bg/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/hotkey_list/Menu_Hotkey_Changer" unique_id=1965708397]
 layout_mode = 2
@@ -172,7 +173,7 @@ offset_bottom = 31.0
 grow_horizontal = 2
 shortcut = SubResource("Shortcut_iy58a")
 text = "New Hotkey"
-script = ExtResource("5_kbped")
+script = ExtResource("6_tac8f")
 
 [node name="Spacer3" type="Control" parent="menu/menu_bg/settings_btn/Settings_popup/HBoxContainer" unique_id=539060920]
 custom_minimum_size = Vector2(10, 0)
@@ -185,7 +186,7 @@ offset_top = 226.0
 offset_right = 390.0
 offset_bottom = 257.0
 text = "Add Image To Overlay"
-script = ExtResource("6_fj5cn")
+script = ExtResource("7_vb5ih")
 
 [node name="FileDialog" type="FileDialog" parent="." unique_id=1225355020]
 oversampling_override = 1.0
@@ -195,7 +196,7 @@ size = Vector2i(780, 560)
 file_mode = 0
 access = 2
 filters = PackedStringArray("*.png", "*.jpg", "*.jpeg", "*.svg", "*.gif")
-script = ExtResource("7_iy58a")
+script = ExtResource("8_6pn8l")
 
 [connection signal="pressed" from="menu/menu_bg/settings_btn" to="menu/menu_bg/settings_btn" method="_on_pressed"]
 [connection signal="color_changed" from="menu/menu_bg/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/ColorPickerButton" to="menu/menu_bg" method="_on_color_picker_button_color_changed"]

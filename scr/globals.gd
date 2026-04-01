@@ -30,10 +30,9 @@ func _process(delta: float) -> void:
 	if Input.is_action_just_pressed("Toggle Menu"):
 		toggle_menu()
 
-func set_img(file) -> TextureRect:
+func set_img(file, tex_rect: TextureRect = TextureRect.new()) -> TextureRect:
 	var image = Image.new()
 	var image_texture = ImageTexture.new()
-	var tex_rect = TextureRect.new()
 	var gif
 	if file.get_extension() == "gif":
 		gif = GifManager.animated_texture_from_file(file)
@@ -51,7 +50,7 @@ func set_img(file) -> TextureRect:
 	tex_rect.custom_minimum_size = tex_size
 	tex_rect.size = tex_size
 	# tex_rect.self_modulate = Color(1.0, 1.0, 1.0, 1.0)
-	tex_rect.set_script(load("res://overlay_element.gd"))
+	tex_rect.set_script(load("res://scr/overlay_element.gd"))
 	tex_rect.mouse_filter = Control.MOUSE_FILTER_STOP
 	return tex_rect
 	
