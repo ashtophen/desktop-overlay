@@ -14,6 +14,6 @@ func _ready():
 	
 	var handle_label = Label.new()
 	handle_label.text = "Use This To Drag"
-	handle_label
+	# handle_label
 	handle.add_child(handle_label)
 	

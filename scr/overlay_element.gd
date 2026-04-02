@@ -16,6 +16,7 @@ var chromakey_switch: CheckButton
 var chroma_vbox: VBoxContainer
 var color_picker: ColorPicker
 var alpha_slider: HSlider
+# var click_through_switch
 
 ### Shader Variables ###
 var shader_code = """
@@ -87,7 +88,7 @@ func _ready():
 		vbox.add_child(speed_slider)
 		speed_slider.value_changed.connect(_on_speed_slider_changed)
 	alpha_slider_label = Label.new()
-	alpha_slider_label.text = "Transparency %s" %self.modulate.a
+	alpha_slider_label.text = "Opacity %.1f%%" %(self.modulate.a * 100)
 	vbox.add_child(alpha_slider_label)
 	alpha_slider = HSlider.new()
 	alpha_slider.custom_minimum_size = Vector2(250, 0)
@@ -144,16 +145,18 @@ func _ready():
 
 	my_material = ShaderMaterial.new()
 	my_material.shader = my_shader
-
+	
+	
 	# self.material = my_material
 
 	
 	# my_material.set_shader_parameter("chroma_key", Color(0.0, 0.0, 0.0, 1.0))
 	# my_material.set_shader_parameter("precision", 0.15)
 	
+	
 func _on_alpha_slider_changed(value):
 	self.modulate.a = alpha_slider.value
-	alpha_slider_label.text = "Transparency %s" %self.modulate.a
+	alpha_slider_label.text = "Opacity %.1f%%" %(self.modulate.a * 100)
 	
 func _on_color_picker_color_changed(color: Color):
 	my_material.set_shader_parameter("chroma_key", color)
@@ -167,11 +170,12 @@ func _on_chromakey_switch_toggled(is_on: bool):
 		self.material = null
 
 func _on_delete_element_btn_pressed():
-	queue_free()
+	get_window().queue_free()
 		
 func _on_file_selected(path):
 	Globals.set_img(path, self as TextureRect)
 	var vbox = menu.get_child(0)
+	get_window().set_meta("file_path", path)
 	if self.texture is AnimatedTexture:
 		speed_slider_label = Label.new()
 		speed_slider_label.text = "Speed: %s" %self.texture.speed_scale
@@ -279,10 +283,10 @@ func _on_click():
 	
 	print("clicked")
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	alpha_slider.value = self.modulate.a
 	scale_slider.value = self.scale.x
 	my_material.set_shader_parameter("chroma_key", color_picker.color)
-	if is_instance_valid(speed_slider):
+	if is_instance_valid(speed_slider) and self.texture == AnimatedTexture:
 		speed_slider.value = self.texture.speed_scale
 	else: return

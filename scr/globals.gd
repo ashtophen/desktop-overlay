@@ -1,14 +1,14 @@
 extends Node
 
 var toggle_menu_hotkey_text = InputMap.action_get_events("Toggle Menu")[0].as_text()
-var screen_size = DisplayServer.screen_get_size()
+var screen_size: Vector2i
 var saved_overlays: PackedStringArray
 
 var menu: CenterContainer
 
 func _ready():
-	# 1. Get the screen size
-	var screen_size = DisplayServer.screen_get_size()
+	
+	screen_size = DisplayServer.screen_get_size()
 	
 	# 2. Subtract 1 pixel from both dimensions
 	var new_size = screen_size - Vector2i(1, 1)
@@ -26,7 +26,7 @@ func toggle_menu():
 	return
 	
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	if Input.is_action_just_pressed("Toggle Menu"):
 		toggle_menu()
 
@@ -37,8 +37,10 @@ func set_img(file, tex_rect: TextureRect = TextureRect.new()) -> TextureRect:
 	if file.get_extension().to_lower() == "gif":
 		gif = GifManager.animated_texture_from_file(file)
 	else:
-		
-		image.load(file)
+		var error = image.load(file)
+		if error != OK:
+			push_error("Failed to load image! Error code: %d" % error)
+			image.load("res://icon.svg")
 		image.convert(Image.FORMAT_RGBA8)
 		image_texture = ImageTexture.create_from_image(image)
 		gif = image_texture
@@ -100,7 +102,11 @@ func load_subwindows(save: String = "user://subwindows.cfg"):
 		tex_rect.flip_v = config.get_value(section, "flip_v", false)
 		tex_rect.stretch_mode = config.get_value(section, "stretch_mode", TextureRect.STRETCH_KEEP_ASPECT_CENTERED)
 		tex_rect.scale = config.get_value(section, "scale", 1)
-		tex_rect.material = config.get_value(section, "material", null)
+		var mat_path = config.get_value(section, "material", "")
+		if mat_path != "":
+			tex_rect.material = load(mat_path)
+		else:
+			tex_rect.material = null
 		tex_rect.color_picker.color = config.get_value(section, "picker_color", Color(1, 1, 1, 1))
 		tex_rect.chromakey_switch.button_pressed = config.get_value(section, "chromakey_switch_toggle", false)
 		if tex_rect.texture is AnimatedTexture:
@@ -125,6 +131,8 @@ func save_all_subwindows(overlay_name: String = "base"):
 	for i in range(windows.size()):
 		var win = windows[i]
 		var tex_rect = win.get_child(0) # Assumes TextureRect is the first child
+		if tex_rect == null:
+			continue
 		var section = "Window_" + str(i)
 		
 		# Save Window geometry
