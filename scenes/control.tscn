@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://5xi381h25aaw"]
 
 [ext_resource type="Script" uid="uid://bql8b0l6rkgwj" path="res://scr/menu.gd" id="1_1p5nq"]
+[ext_resource type="Script" uid="uid://wqu0dbvcaiso" path="res://scr/main.gd" id="1_hob4j"]
 [ext_resource type="Script" uid="uid://qysy75xix803" path="res://scr/menu_bg.gd" id="2_hob4j"]
 [ext_resource type="Script" uid="uid://8ft47ej0hvh0" path="res://scr/menu_hotkey_text.gd" id="3_01bab"]
 [ext_resource type="Script" uid="uid://wct72ev0docv" path="res://scr/settings_btn.gd" id="4_exs80"]
@@ -8,6 +9,9 @@
 [ext_resource type="Script" uid="uid://bttqsgby0duom" path="res://scr/button.gd" id="6_tac8f"]
 [ext_resource type="Script" uid="uid://v6yorlnlpfjv" path="res://scr/add_image_btn.gd" id="7_vb5ih"]
 [ext_resource type="Script" uid="uid://pby251upeakx" path="res://scr/file_dialog.gd" id="8_6pn8l"]
+[ext_resource type="Script" uid="uid://bovsy2mprpyhg" path="res://scenes/load_saved_btn.gd" id="9_01bab"]
+[ext_resource type="Script" uid="uid://dmbbff26tc8h5" path="res://scenes/saves_list.gd" id="10_exs80"]
+[ext_resource type="Script" uid="uid://c4bfawx4uvbtd" path="res://scenes/save_current_layout.gd" id="11_kql7n"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_kbped"]
 outline_size = 2
@@ -19,6 +23,9 @@ action = &"Toggle Menu"
 [sub_resource type="Shortcut" id="Shortcut_iy58a"]
 events = [SubResource("InputEventAction_fj5cn")]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_kql7n"]
+bg_color = Color(0.36767125, 0.36767122, 0.36767122, 1)
+
 [node name="Control" type="Control" unique_id=722111916]
 layout_mode = 3
 anchors_preset = 15
@@ -26,6 +33,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_hob4j")
 
 [node name="menu" type="CenterContainer" parent="." unique_id=1938298883]
 layout_mode = 1
@@ -37,27 +45,35 @@ grow_vertical = 2
 script = ExtResource("1_1p5nq")
 
 [node name="menu_bg" type="ColorRect" parent="menu" unique_id=603948033]
-custom_minimum_size = Vector2(600, 400)
+custom_minimum_size = Vector2(800, 600)
 layout_mode = 2
 color = Color(0.34117648, 0.27450982, 0.39607844, 0.3254902)
 script = ExtResource("2_hob4j")
 
-[node name="Hotkey_Dialog" type="HBoxContainer" parent="menu/menu_bg" unique_id=677257452]
+[node name="main_menu" type="Control" parent="menu/menu_bg" unique_id=368030043]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Hotkey_Dialog" type="HBoxContainer" parent="menu/menu_bg/main_menu" unique_id=677257452]
 layout_mode = 0
 offset_left = 61.0
 offset_top = 7.0
 offset_right = 278.0
 offset_bottom = 47.0
 
-[node name="Press_" type="Label" parent="menu/menu_bg/Hotkey_Dialog" unique_id=2028997583]
+[node name="Press_" type="Label" parent="menu/menu_bg/main_menu/Hotkey_Dialog" unique_id=2028997583]
 layout_mode = 2
 text = "To Toggle This Menu Press: "
 
-[node name="Hotkey" type="Label" parent="menu/menu_bg/Hotkey_Dialog" unique_id=2134361422]
+[node name="Hotkey" type="Label" parent="menu/menu_bg/main_menu/Hotkey_Dialog" unique_id=2134361422]
 layout_mode = 2
 script = ExtResource("3_01bab")
 
-[node name="settings_btn" type="Button" parent="menu/menu_bg" unique_id=1405295615]
+[node name="settings_btn" type="Button" parent="menu/menu_bg/main_menu" unique_id=1405295615]
 visible = false
 layout_mode = 1
 anchors_preset = 8
@@ -74,35 +90,35 @@ grow_vertical = 2
 text = "Settings"
 script = ExtResource("4_exs80")
 
-[node name="Settings_popup" type="PopupPanel" parent="menu/menu_bg/settings_btn" unique_id=1977727088]
+[node name="Settings_popup" type="PopupPanel" parent="menu/menu_bg/main_menu/settings_btn" unique_id=1977727088]
 oversampling_override = 1.0
 title = "Settings"
 initial_position = 4
 size = Vector2i(600, 300)
 script = ExtResource("5_kql7n")
 
-[node name="HBoxContainer" type="HBoxContainer" parent="menu/menu_bg/settings_btn/Settings_popup" unique_id=2001598172]
+[node name="HBoxContainer" type="HBoxContainer" parent="menu/menu_bg/main_menu/settings_btn/Settings_popup" unique_id=2001598172]
 offset_left = 4.0
 offset_top = 4.0
 offset_right = 596.0
 offset_bottom = 296.0
 
-[node name="Spacer4" type="Control" parent="menu/menu_bg/settings_btn/Settings_popup/HBoxContainer" unique_id=1279497066]
+[node name="Spacer4" type="Control" parent="menu/menu_bg/main_menu/settings_btn/Settings_popup/HBoxContainer" unique_id=1279497066]
 custom_minimum_size = Vector2(10, 0)
 layout_mode = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="menu/menu_bg/settings_btn/Settings_popup/HBoxContainer" unique_id=1131738634]
+[node name="VBoxContainer" type="VBoxContainer" parent="menu/menu_bg/main_menu/settings_btn/Settings_popup/HBoxContainer" unique_id=1131738634]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="ColorPickerButton" type="ColorPickerButton" parent="menu/menu_bg/settings_btn/Settings_popup/HBoxContainer/VBoxContainer" unique_id=956795531]
+[node name="ColorPickerButton" type="ColorPickerButton" parent="menu/menu_bg/main_menu/settings_btn/Settings_popup/HBoxContainer/VBoxContainer" unique_id=956795531]
 layout_mode = 2
 size_flags_vertical = 0
 text = "Change Menu Color"
 flat = true
 color = Color(0.61960787, 0.61960787, 0.61960787, 1)
 
-[node name="Label" type="Label" parent="menu/menu_bg/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/ColorPickerButton" unique_id=1113012493]
+[node name="Label" type="Label" parent="menu/menu_bg/main_menu/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/ColorPickerButton" unique_id=1113012493]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -120,49 +136,49 @@ label_settings = SubResource("LabelSettings_kbped")
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="hotkey_list" type="VBoxContainer" parent="menu/menu_bg/settings_btn/Settings_popup/HBoxContainer/VBoxContainer" unique_id=764929483]
+[node name="hotkey_list" type="VBoxContainer" parent="menu/menu_bg/main_menu/settings_btn/Settings_popup/HBoxContainer/VBoxContainer" unique_id=764929483]
 layout_mode = 2
 
-[node name="Titles" type="HBoxContainer" parent="menu/menu_bg/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/hotkey_list" unique_id=1325568785]
+[node name="Titles" type="HBoxContainer" parent="menu/menu_bg/main_menu/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/hotkey_list" unique_id=1325568785]
 layout_mode = 2
 
-[node name="Spacer3" type="Control" parent="menu/menu_bg/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/hotkey_list/Titles" unique_id=340800244]
+[node name="Spacer3" type="Control" parent="menu/menu_bg/main_menu/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/hotkey_list/Titles" unique_id=340800244]
 custom_minimum_size = Vector2(10, 0)
 layout_mode = 2
 
-[node name="Label" type="Label" parent="menu/menu_bg/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/hotkey_list/Titles" unique_id=747426655]
+[node name="Label" type="Label" parent="menu/menu_bg/main_menu/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/hotkey_list/Titles" unique_id=747426655]
 layout_mode = 2
 text = "Default Hotkey:"
 
-[node name="Spacer" type="Control" parent="menu/menu_bg/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/hotkey_list/Titles" unique_id=1825563849]
+[node name="Spacer" type="Control" parent="menu/menu_bg/main_menu/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/hotkey_list/Titles" unique_id=1825563849]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Label2" type="Label" parent="menu/menu_bg/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/hotkey_list/Titles" unique_id=1129044168]
+[node name="Label2" type="Label" parent="menu/menu_bg/main_menu/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/hotkey_list/Titles" unique_id=1129044168]
 layout_mode = 2
 text = "Create Custom Hotkey:"
 
-[node name="Spacer2" type="Control" parent="menu/menu_bg/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/hotkey_list/Titles" unique_id=1735048770]
+[node name="Spacer2" type="Control" parent="menu/menu_bg/main_menu/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/hotkey_list/Titles" unique_id=1735048770]
 custom_minimum_size = Vector2(10, 0)
 layout_mode = 2
 
-[node name="Menu_Hotkey_Changer" type="HBoxContainer" parent="menu/menu_bg/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/hotkey_list" unique_id=1925524041]
+[node name="Menu_Hotkey_Changer" type="HBoxContainer" parent="menu/menu_bg/main_menu/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/hotkey_list" unique_id=1925524041]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="menu/menu_bg/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/hotkey_list/Menu_Hotkey_Changer" unique_id=869305495]
+[node name="Label" type="Label" parent="menu/menu_bg/main_menu/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/hotkey_list/Menu_Hotkey_Changer" unique_id=869305495]
 layout_mode = 2
 text = "Alt+Period"
 script = ExtResource("3_01bab")
 
-[node name="Spacer" type="Control" parent="menu/menu_bg/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/hotkey_list/Menu_Hotkey_Changer" unique_id=1965708397]
+[node name="Spacer" type="Control" parent="menu/menu_bg/main_menu/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/hotkey_list/Menu_Hotkey_Changer" unique_id=1965708397]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Control" type="Control" parent="menu/menu_bg/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/hotkey_list/Menu_Hotkey_Changer" unique_id=1144402106]
+[node name="Control" type="Control" parent="menu/menu_bg/main_menu/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/hotkey_list/Menu_Hotkey_Changer" unique_id=1144402106]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Button" type="Button" parent="menu/menu_bg/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/hotkey_list/Menu_Hotkey_Changer/Control" unique_id=414520639]
+[node name="Button" type="Button" parent="menu/menu_bg/main_menu/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/hotkey_list/Menu_Hotkey_Changer/Control" unique_id=414520639]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
@@ -175,11 +191,11 @@ shortcut = SubResource("Shortcut_iy58a")
 text = "New Hotkey"
 script = ExtResource("6_tac8f")
 
-[node name="Spacer3" type="Control" parent="menu/menu_bg/settings_btn/Settings_popup/HBoxContainer" unique_id=539060920]
+[node name="Spacer3" type="Control" parent="menu/menu_bg/main_menu/settings_btn/Settings_popup/HBoxContainer" unique_id=539060920]
 custom_minimum_size = Vector2(10, 0)
 layout_mode = 2
 
-[node name="add_image_btn" type="Button" parent="menu/menu_bg" unique_id=161051778]
+[node name="add_image_btn" type="Button" parent="menu/menu_bg/main_menu" unique_id=161051778]
 layout_mode = 0
 offset_left = 213.0
 offset_top = 226.0
@@ -187,6 +203,61 @@ offset_right = 390.0
 offset_bottom = 257.0
 text = "Add Image To Overlay"
 script = ExtResource("7_vb5ih")
+
+[node name="Button" type="Button" parent="menu/menu_bg/main_menu" unique_id=80449162]
+visible = false
+layout_mode = 0
+offset_left = 379.0
+offset_top = 347.0
+offset_right = 579.0
+offset_bottom = 378.0
+text = "Open Last Saved Overlay"
+script = ExtResource("9_01bab")
+
+[node name="save_current_layout" type="Button" parent="menu/menu_bg/main_menu" unique_id=211195778]
+layout_mode = 0
+offset_left = 418.0
+offset_top = 51.0
+offset_right = 647.0
+offset_bottom = 82.0
+text = "Save Current Overlay Layout"
+script = ExtResource("11_kql7n")
+
+[node name="LineEdit" type="LineEdit" parent="menu/menu_bg/main_menu/save_current_layout" unique_id=2030175793]
+visible = false
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 0
+offset_left = 20.0
+offset_top = 73.0
+offset_right = 320.0
+offset_bottom = 104.0
+placeholder_text = "Save Name"
+alignment = 1
+
+[node name="ScrollContainer" type="ScrollContainer" parent="menu/menu_bg/main_menu" unique_id=265848698]
+custom_minimum_size = Vector2(200, 300)
+layout_mode = 0
+offset_top = 55.0
+offset_right = 200.0
+offset_bottom = 555.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_kql7n")
+follow_focus = true
+
+[node name="VBoxContainer" type="VBoxContainer" parent="menu/menu_bg/main_menu/ScrollContainer" unique_id=763285449]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="menu/menu_bg/main_menu/ScrollContainer/VBoxContainer" unique_id=987731895]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+text = "Previous Saves"
+horizontal_alignment = 1
+
+[node name="saves_list" type="VBoxContainer" parent="menu/menu_bg/main_menu/ScrollContainer/VBoxContainer" unique_id=227412565]
+layout_mode = 2
+script = ExtResource("10_exs80")
 
 [node name="FileDialog" type="FileDialog" parent="." unique_id=1225355020]
 oversampling_override = 1.0
@@ -198,7 +269,10 @@ access = 2
 filters = PackedStringArray("*.png", "*.jpg", "*.jpeg", "*.svg", "*.gif")
 script = ExtResource("8_6pn8l")
 
-[connection signal="pressed" from="menu/menu_bg/settings_btn" to="menu/menu_bg/settings_btn" method="_on_pressed"]
-[connection signal="color_changed" from="menu/menu_bg/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/ColorPickerButton" to="menu/menu_bg" method="_on_color_picker_button_color_changed"]
-[connection signal="pressed" from="menu/menu_bg/add_image_btn" to="menu/menu_bg/add_image_btn" method="_on_pressed"]
+[connection signal="pressed" from="menu/menu_bg/main_menu/settings_btn" to="menu/menu_bg/main_menu/settings_btn" method="_on_pressed"]
+[connection signal="color_changed" from="menu/menu_bg/main_menu/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/ColorPickerButton" to="menu/menu_bg" method="_on_color_picker_button_color_changed"]
+[connection signal="pressed" from="menu/menu_bg/main_menu/add_image_btn" to="menu/menu_bg/main_menu/add_image_btn" method="_on_pressed"]
+[connection signal="pressed" from="menu/menu_bg/main_menu/Button" to="menu/menu_bg/main_menu/Button" method="_on_pressed"]
+[connection signal="pressed" from="menu/menu_bg/main_menu/save_current_layout" to="menu/menu_bg/main_menu/save_current_layout" method="_on_pressed"]
+[connection signal="text_submitted" from="menu/menu_bg/main_menu/save_current_layout/LineEdit" to="menu/menu_bg/main_menu/save_current_layout" method="_on_line_edit_text_submitted"]
 [connection signal="file_selected" from="FileDialog" to="FileDialog" method="_on_file_selected"]

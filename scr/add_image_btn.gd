@@ -1,6 +1,6 @@
 extends Button
 
-@onready var file_dialog = $"../../../FileDialog"
+@onready var file_dialog = $"../../../../FileDialog"
 
 func _on_pressed() -> void:
 	file_dialog.popup()

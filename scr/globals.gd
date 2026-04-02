@@ -2,7 +2,7 @@ extends Node
 
 var toggle_menu_hotkey_text = InputMap.action_get_events("Toggle Menu")[0].as_text()
 var screen_size = DisplayServer.screen_get_size()
-
+var saved_overlays: PackedStringArray
 
 var menu: CenterContainer
 
@@ -54,10 +54,10 @@ func set_img(file, tex_rect: TextureRect = TextureRect.new()) -> TextureRect:
 	tex_rect.mouse_filter = Control.MOUSE_FILTER_STOP
 	return tex_rect
 	
-func create_window(file):
+func create_window(file, saved_pos: Vector2i = Vector2i(400, 400), saved_size: Vector2i = Vector2i(400,300)) -> Window:
 	
 	var window = Window.new()
-	
+	window.add_to_group("save_when_close")
 	window.title = "New Window"
 	window.borderless = true
 	window.unfocusable = true
@@ -65,8 +65,8 @@ func create_window(file):
 	window.transparent_bg = true
 	window.transparent = true
 	#window.is_drag
-	window.size = Vector2i(400, 300)
-	window.position = Vector2i(400, 400)
+	window.size = saved_size
+	window.position = saved_pos
 	# Add your UI elements to the window
 	var tex_rect = set_img(file)
 	window.size = tex_rect.size
@@ -78,3 +78,99 @@ func create_window(file):
 	window.add_child(tex_rect)
 	
 	get_tree().root.add_child(window)
+	window.set_meta("file_path", file) 
+	return window
+
+func load_subwindows(save: String = "user://subwindows.cfg"):
+	var config = ConfigFile.new()
+	if config.load(save) != OK: return
+
+	for section in config.get_sections():
+		var file = config.get_value(section, "file")
+		var pos = config.get_value(section, "pos")
+		var size = config.get_value(section, "size")
+		
+		# Create the window using your existing function
+		var win = create_window(file, pos, size)
+		var tex_rect = win.get_child(0)
+		
+		# Restore the modifications
+		tex_rect.modulate = config.get_value(section, "modulate", Color.WHITE)
+		tex_rect.flip_h = config.get_value(section, "flip_h", false)
+		tex_rect.flip_v = config.get_value(section, "flip_v", false)
+		tex_rect.stretch_mode = config.get_value(section, "stretch_mode", TextureRect.STRETCH_KEEP_ASPECT_CENTERED)
+		tex_rect.scale = config.get_value(section, "scale", 1)
+		tex_rect.material = config.get_value(section, "material", null)
+		tex_rect.color_picker.color = config.get_value(section, "picker_color", Color(1, 1, 1, 1))
+		tex_rect.chromakey_switch.button_pressed = config.get_value(section, "chromakey_switch_toggle", false)
+		if tex_rect.texture is AnimatedTexture:
+			tex_rect.texture.speed_scale = config.get_value(section, "speed_scale", 1)
+
+func get_all_save_slots():
+	var saves = []
+	var dir = DirAccess.open("user://")
+	if dir:
+		dir.list_dir_begin()
+		var file_name = dir.get_next()
+		while file_name != "":
+			if file_name.ends_with(".cfg"):
+				saves.append(file_name.get_basename())
+			file_name = dir.get_next()
+	return saves
+	
+func save_all_subwindows(overlay_name: String = "base"):
+	var config = ConfigFile.new()
+	var windows = get_tree().get_nodes_in_group("save_when_close")
+	
+	for i in range(windows.size()):
+		var win = windows[i]
+		var tex_rect = win.get_child(0) # Assumes TextureRect is the first child
+		var section = "Window_" + str(i)
+		
+		# Save Window geometry
+		config.set_value(section, "file", win.get_meta("file_path"))
+		config.set_value(section, "pos", win.position)
+		config.set_value(section, "size", win.size)
+		
+		# Save TextureRect modifications
+		config.set_value(section, "modulate", tex_rect.modulate)
+		config.set_value(section, "flip_h", tex_rect.flip_h)
+		config.set_value(section, "flip_v", tex_rect.flip_v)
+		config.set_value(section, "stretch_mode", tex_rect.stretch_mode)
+		config.set_value(section, "scale", tex_rect.scale)
+		if tex_rect.material != null:
+			config.set_value(section, "material", tex_rect.material)
+			config.set_value(section, "picker_color", tex_rect.color_picker.color)
+			config.set_value(section, "chromakey_switch_toggle", tex_rect.chromakey_switch.button_pressed)
+		config.set_value(section, "stretch_mode", tex_rect.stretch_mode)
+		if tex_rect.texture is AnimatedTexture:
+			config.set_value(section, "speed_scale", tex_rect.texture.speed_scale)
+		# Add any other properties you change (e.g., self_modulate, scale)
+		
+	config.save("user://" + overlay_name + ".cfg")
+	take_preview_screenshot(overlay_name)
+
+func take_preview_screenshot(overlay_name: String):
+	await RenderingServer.frame_post_draw
+	
+	# 1. Create a large transparent base image (e.g., matching main screen size)
+	var base_size = DisplayServer.screen_get_size()
+	var final_img = Image.create(base_size.x, base_size.y, false, Image.FORMAT_RGBA8)
+	final_img.fill(Color(0, 0, 0, 0)) # Start transparent
+
+	# 2. Add the Main Window first
+	#var main_img = get_viewport().get_texture().get_image()
+	# final_img.blit_rect(main_img, Rect2i(Vector2i.ZERO, main_img.get_size()), get_window().position)
+
+	# 3. Loop through subwindows and layer them on top
+	var windows = get_tree().get_nodes_in_group("save_when_close")
+	for win in windows:
+		if win is Window:
+			var win_img = win.get_viewport().get_texture().get_image()
+			# Copy this window's pixels onto our base image at its desktop position
+			final_img.blit_rect(win_img, Rect2i(Vector2i.ZERO, win_img.get_size()), win.position)
+
+	# 4. Save the result
+	final_img.save_png("user://" + overlay_name + "_preview.png")
+	
+	

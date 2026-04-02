@@ -7,6 +7,7 @@ var drag_threshold = 5.0
 var menu: PopupPanel
 var scale_slider_label: Label
 var speed_slider_label: Label
+var alpha_slider_label: Label
 var _menu_just_closed = false
 var scale_slider: HSlider
 var speed_slider: HSlider
@@ -14,6 +15,7 @@ var file_dialog: FileDialog
 var chromakey_switch: CheckButton
 var chroma_vbox: VBoxContainer
 var color_picker: ColorPicker
+var alpha_slider: HSlider
 
 ### Shader Variables ###
 var shader_code = """
@@ -84,7 +86,18 @@ func _ready():
 		speed_slider.value = self.texture.speed_scale
 		vbox.add_child(speed_slider)
 		speed_slider.value_changed.connect(_on_speed_slider_changed)
-		
+	alpha_slider_label = Label.new()
+	alpha_slider_label.text = "Transparency %s" %self.modulate.a
+	vbox.add_child(alpha_slider_label)
+	alpha_slider = HSlider.new()
+	alpha_slider.custom_minimum_size = Vector2(250, 0)
+	alpha_slider.value = self.modulate.a
+	alpha_slider.min_value = 0.05
+	alpha_slider.step = 0.01
+	alpha_slider.max_value = 1
+	vbox.add_child(alpha_slider)
+	alpha_slider.value_changed.connect(_on_alpha_slider_changed)
+	
 	var reset_btn = Button.new()
 	vbox.add_child(reset_btn)
 	reset_btn.pressed.connect(_on_reset_btn_pressed)
@@ -105,6 +118,7 @@ func _ready():
 	delete_element_btn.text = "Remove From Overlay"
 	vbox.add_child(delete_element_btn)
 	delete_element_btn.pressed.connect(_on_delete_element_btn_pressed)
+	
 	
 	### Shader Code For Chromakeying ###
 	
@@ -136,6 +150,10 @@ func _ready():
 	
 	# my_material.set_shader_parameter("chroma_key", Color(0.0, 0.0, 0.0, 1.0))
 	# my_material.set_shader_parameter("precision", 0.15)
+	
+func _on_alpha_slider_changed(value):
+	self.modulate.a = alpha_slider.value
+	alpha_slider_label.text = "Transparency %s" %self.modulate.a
 	
 func _on_color_picker_color_changed(color: Color):
 	my_material.set_shader_parameter("chroma_key", color)
@@ -260,3 +278,11 @@ func _on_item_rect_changed():
 func _on_click():
 	
 	print("clicked")
+
+func _process(delta: float) -> void:
+	alpha_slider.value = self.modulate.a
+	scale_slider.value = self.scale.x
+	my_material.set_shader_parameter("chroma_key", color_picker.color)
+	if is_instance_valid(speed_slider):
+		speed_slider.value = self.texture.speed_scale
+	else: return
