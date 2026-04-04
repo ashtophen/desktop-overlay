@@ -1,10 +1,24 @@
 extends Node
-
+signal overlay_saved
+signal display_msg(msg: String)
 var toggle_menu_hotkey_text = InputMap.action_get_events("Toggle Menu")[0].as_text()
 var screen_size: Vector2i
 var saved_overlays: PackedStringArray
+var been_warned = false # TEMP PLEASE GET RID OF
 
 var menu: CenterContainer
+
+#func _init() -> void:
+	#print("init")
+	#if not OS.has_feature("editor"):
+	#	print("not in the editor boyyyyyyyyy")
+		#var exe_dir = OS.get_executable_path().get_base_dir()
+	
+		#ProjectSettings.set_setting("application/run/current_directory", exe_dir)
+	
+	#Print("You IN MA HOUSE!", exe_dir)
+
+
 
 func _ready():
 	
@@ -102,9 +116,10 @@ func load_subwindows(save: String = "user://subwindows.cfg"):
 		tex_rect.flip_v = config.get_value(section, "flip_v", false)
 		tex_rect.stretch_mode = config.get_value(section, "stretch_mode", TextureRect.STRETCH_KEEP_ASPECT_CENTERED)
 		tex_rect.scale = config.get_value(section, "scale", 1)
-		var mat_path = config.get_value(section, "material", "")
-		if mat_path != "":
-			tex_rect.material = load(mat_path)
+		if config.has_section_key(section, "material"):
+			var mat_path = config.get_value(section, "material", null)
+			if mat_path != null:
+				tex_rect.material = mat_path
 		else:
 			tex_rect.material = null
 		tex_rect.color_picker.color = config.get_value(section, "picker_color", Color(1, 1, 1, 1))
@@ -157,6 +172,10 @@ func save_all_subwindows(overlay_name: String = "base"):
 		
 	config.save("user://" + overlay_name + ".cfg")
 	take_preview_screenshot(overlay_name)
+	await RenderingServer.frame_post_draw #wait for this to be done drawing so the screenshot is saved
+	await get_tree().process_frame # wait for the next frame to give time for the screenshot to be saved
+	await get_tree().process_frame # cause I'm paranoid
+	overlay_saved.emit(overlay_name) # NOW emit the signal so if a function needs that screenshot I KNOW it is there.
 
 func take_preview_screenshot(overlay_name: String):
 	await RenderingServer.frame_post_draw
@@ -181,4 +200,8 @@ func take_preview_screenshot(overlay_name: String):
 	# 4. Save the result
 	final_img.save_png("user://" + overlay_name + "_preview.png")
 	
-	
+func remove_all_subwindows():
+	var windows = get_tree().get_nodes_in_group("save_when_close")
+	for i in range(windows.size()):
+		var win = windows[i]
+		win.queue_free()

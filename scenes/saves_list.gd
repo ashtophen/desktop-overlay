@@ -1,10 +1,11 @@
 extends VBoxContainer
-
+signal display_msg
 # Path where your saves are located
 const SAVE_DIR = "user://"
 
 func _ready():
 	refresh_save_list()
+	Globals.overlay_saved.connect(refresh_save_list)
 
 func refresh_save_list():
 	# Clear existing buttons first
@@ -59,8 +60,21 @@ func create_save_slot_ui(slot_name: String):
 	
 	add_child(btn)
 
+
 func _on_slot_selected(slot_name: String):
-	print("Loading slot: ", slot_name)
-	Globals.load_subwindows(SAVE_DIR + slot_name + ".cfg")
-	# Call your global loading function here!
-	# globals.load_subwindows(slot_name) 
+	var window = get_window()
+
+		# Globals.display_msg.emit("WAIT!!! Have You Saved Your Current Layout?")
+		#Globals.been_warned = true
+	if !window.has_meta("overlay"):
+		window.set_meta("overlay", slot_name)
+		Globals.load_subwindows(SAVE_DIR + slot_name + ".cfg")
+	elif window.get_meta("overlay") != slot_name:
+		Globals.remove_all_subwindows()
+		window.set_meta("overlay", slot_name)
+		Globals.load_subwindows(SAVE_DIR + slot_name + ".cfg")
+	elif window.get_meta("overlay") == slot_name:
+		Globals.remove_all_subwindows()
+		window.set_meta("overlay", slot_name)
+		Globals.load_subwindows(SAVE_DIR + slot_name + ".cfg")
+		# Globals.display_msg.emit("dude. you already loaded that one.")

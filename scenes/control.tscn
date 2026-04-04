@@ -12,6 +12,8 @@
 [ext_resource type="Script" uid="uid://bovsy2mprpyhg" path="res://scenes/load_saved_btn.gd" id="9_01bab"]
 [ext_resource type="Script" uid="uid://dmbbff26tc8h5" path="res://scenes/saves_list.gd" id="10_exs80"]
 [ext_resource type="Script" uid="uid://c4bfawx4uvbtd" path="res://scenes/save_current_layout.gd" id="11_kql7n"]
+[ext_resource type="Script" uid="uid://cccydhc83mf2" path="res://scenes/general_popup.gd" id="12_vb5ih"]
+[ext_resource type="Script" uid="uid://bthmodski87kh" path="res://scenes/run_on_start.gd" id="13_tac8f"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_kbped"]
 outline_size = 2
@@ -47,7 +49,7 @@ script = ExtResource("1_1p5nq")
 [node name="menu_bg" type="ColorRect" parent="menu" unique_id=603948033]
 custom_minimum_size = Vector2(800, 600)
 layout_mode = 2
-color = Color(0.34117648, 0.27450982, 0.39607844, 0.3254902)
+color = Color(0.34117648, 0.27450982, 0.39607844, 0.73333335)
 script = ExtResource("2_hob4j")
 
 [node name="main_menu" type="Control" parent="menu/menu_bg" unique_id=368030043]
@@ -119,6 +121,7 @@ flat = true
 color = Color(0.61960787, 0.61960787, 0.61960787, 1)
 
 [node name="Label" type="Label" parent="menu/menu_bg/main_menu/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/ColorPickerButton" unique_id=1113012493]
+visible = false
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -259,6 +262,33 @@ horizontal_alignment = 1
 layout_mode = 2
 script = ExtResource("10_exs80")
 
+[node name="general_popup" type="Popup" parent="menu" unique_id=1863830492]
+oversampling_override = 1.0
+initial_position = 4
+size = Vector2i(500, 200)
+script = ExtResource("12_vb5ih")
+
+[node name="popup_bg" type="ColorRect" parent="menu/general_popup" unique_id=546902800]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.7921569, 0.57254905, 0.5882353, 1)
+
+[node name="title" type="Label" parent="menu/general_popup" unique_id=1532683939]
+offset_right = 40.0
+offset_bottom = 23.0
+text = "WARNING!!!"
+
+[node name="sys_msg" type="RichTextLabel" parent="menu/general_popup" unique_id=677140021]
+offset_left = 75.0
+offset_top = 29.000004
+offset_right = 115.0
+offset_bottom = 69.0
+scale = Vector2(9.094992, 3.3696496)
+fit_content = true
+
 [node name="FileDialog" type="FileDialog" parent="." unique_id=1225355020]
 oversampling_override = 1.0
 title = "Open a File"
@@ -269,6 +299,16 @@ access = 2
 filters = PackedStringArray("*.png", "*.jpg", "*.jpeg", "*.svg", "*.gif")
 script = ExtResource("8_6pn8l")
 
+[node name="CheckBox" type="CheckBox" parent="." unique_id=1291646763]
+layout_mode = 0
+offset_left = 745.0
+offset_top = 550.0
+offset_right = 893.0
+offset_bottom = 581.0
+scale = Vector2(1.4, 1.4)
+text = "Run On Startup"
+script = ExtResource("13_tac8f")
+
 [connection signal="pressed" from="menu/menu_bg/main_menu/settings_btn" to="menu/menu_bg/main_menu/settings_btn" method="_on_pressed"]
 [connection signal="color_changed" from="menu/menu_bg/main_menu/settings_btn/Settings_popup/HBoxContainer/VBoxContainer/ColorPickerButton" to="menu/menu_bg" method="_on_color_picker_button_color_changed"]
 [connection signal="pressed" from="menu/menu_bg/main_menu/add_image_btn" to="menu/menu_bg/main_menu/add_image_btn" method="_on_pressed"]
@@ -276,3 +316,4 @@ script = ExtResource("8_6pn8l")
 [connection signal="pressed" from="menu/menu_bg/main_menu/save_current_layout" to="menu/menu_bg/main_menu/save_current_layout" method="_on_pressed"]
 [connection signal="text_submitted" from="menu/menu_bg/main_menu/save_current_layout/LineEdit" to="menu/menu_bg/main_menu/save_current_layout" method="_on_line_edit_text_submitted"]
 [connection signal="file_selected" from="FileDialog" to="FileDialog" method="_on_file_selected"]
+[connection signal="toggled" from="CheckBox" to="CheckBox" method="_on_toggled"]

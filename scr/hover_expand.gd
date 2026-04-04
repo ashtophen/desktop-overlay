@@ -8,6 +8,7 @@ func _ready():
 	mouse_entered.connect(_on_button_hovered)
 	mouse_exited.connect(_on_button_unhovered)
 
+
 func _on_button_hovered():
 	_on_button_unhovered()
 	await get_tree().process_frame

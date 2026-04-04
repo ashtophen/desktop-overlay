@@ -16,6 +16,8 @@ var chromakey_switch: CheckButton
 var chroma_vbox: VBoxContainer
 var color_picker: ColorPicker
 var alpha_slider: HSlider
+var flip_h_btn: CheckButton
+var flip_v_btn: CheckButton
 # var click_through_switch
 
 ### Shader Variables ###
@@ -99,6 +101,16 @@ func _ready():
 	vbox.add_child(alpha_slider)
 	alpha_slider.value_changed.connect(_on_alpha_slider_changed)
 	
+	flip_h_btn = CheckButton.new()
+	flip_h_btn.text = "Flip Horizontally"
+	flip_h_btn.toggled.connect(_on_flip_h_btn_toggled)
+	vbox.add_child(flip_h_btn)
+	flip_v_btn = CheckButton.new()
+	flip_v_btn.text = "Flip Vertically"
+	flip_v_btn.toggled.connect(_on_flip_v_btn_toggled)
+	vbox.add_child(flip_v_btn)
+	
+	
 	var reset_btn = Button.new()
 	vbox.add_child(reset_btn)
 	reset_btn.pressed.connect(_on_reset_btn_pressed)
@@ -153,6 +165,15 @@ func _ready():
 	# my_material.set_shader_parameter("chroma_key", Color(0.0, 0.0, 0.0, 1.0))
 	# my_material.set_shader_parameter("precision", 0.15)
 	
+	
+func _on_flip_h_btn_toggled(is_on: bool):
+	if is_on:
+		self.flip_h = true
+	else: self.flip_h = false
+func _on_flip_v_btn_toggled(is_on: bool):
+	if is_on:
+		self.flip_v = true
+	else: self.flip_v = false
 	
 func _on_alpha_slider_changed(value):
 	self.modulate.a = alpha_slider.value
@@ -290,3 +311,5 @@ func _process(_delta: float) -> void:
 	if is_instance_valid(speed_slider) and self.texture == AnimatedTexture:
 		speed_slider.value = self.texture.speed_scale
 	else: return
+	flip_h_btn.button_pressed = self.flip_h
+	flip_v_btn.button_pressed = self.flip_v

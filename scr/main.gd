@@ -6,3 +6,5 @@ func _notification(what):
 		Globals.save_all_subwindows()
 		get_tree().quit() # Now close the application
 		
+#func _ready() -> void:
+	
