@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk"> <!-- Changed from Godot.NET.Sdk -->
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework> <!-- Matches most Godot 4 versions -->
+    <UseWindowsForms>true</UseWindowsForms>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+  </PropertyGroup>
+
+  <!-- Keep the Godot-specific reference if needed by your version -->
+  <ItemGroup>
+    <PackageReference Include="GodotSharp" Version="4.6.1" /> <!-- Use your Godot version -->
+  </ItemGroup>
+</Project>

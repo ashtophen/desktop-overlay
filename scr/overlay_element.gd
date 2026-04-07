@@ -18,7 +18,9 @@ var color_picker: ColorPicker
 var alpha_slider: HSlider
 var flip_h_btn: CheckButton
 var flip_v_btn: CheckButton
+#var click_func
 # var click_through_switch
+var click_through_enabled: bool = false
 
 ### Shader Variables ###
 var shader_code = """
@@ -33,6 +35,8 @@ void fragment() {
 	if (dist < precision) {
 		tex_color.a = 0.0;
 	}
+	tex_color.a *= COLOR.a;
+	
 	COLOR = tex_color;
 }
 """
@@ -158,13 +162,14 @@ func _ready():
 	my_material = ShaderMaterial.new()
 	my_material.shader = my_shader
 	
-	
+	Globals.connect("overlay_loaded", _on_overlay_loaded)
 	# self.material = my_material
 
 	
 	# my_material.set_shader_parameter("chroma_key", Color(0.0, 0.0, 0.0, 1.0))
 	# my_material.set_shader_parameter("precision", 0.15)
-	
+	###
+	#clickthrough_switch
 	
 func _on_flip_h_btn_toggled(is_on: bool):
 	if is_on:
@@ -198,20 +203,34 @@ func _on_file_selected(path):
 	var vbox = menu.get_child(0)
 	get_window().set_meta("file_path", path)
 	if self.texture is AnimatedTexture:
-		speed_slider_label = Label.new()
-		speed_slider_label.text = "Speed: %s" %self.texture.speed_scale
-		vbox.add_child(speed_slider_label)
-		vbox.move_child(speed_slider_label, 3)
+		if not is_instance_valid(speed_slider_label):
+			speed_slider_label = Label.new()
+			speed_slider_label.text = "Speed: %s" %self.texture.speed_scale
+			vbox.add_child(speed_slider_label)
+			vbox.move_child(speed_slider_label, 3)
 	
-		speed_slider = HSlider.new()
-		speed_slider.custom_minimum_size = Vector2(250, 0)
-		speed_slider.min_value = .1
-		speed_slider.max_value = 10
-		speed_slider.step = .1
+		if not is_instance_valid(speed_slider):
+			speed_slider = HSlider.new()
+			speed_slider.custom_minimum_size = Vector2(250, 0)
+			speed_slider.min_value = .1
+			speed_slider.max_value = 10
+			speed_slider.step = .1
+			speed_slider.value = self.texture.speed_scale
+			vbox.add_child(speed_slider)
+			vbox.move_child(speed_slider, 4)
+			speed_slider.value_changed.connect(_on_speed_slider_changed)
+		speed_slider_label.text = "Speed: %s" % self.texture.speed_scale
 		speed_slider.value = self.texture.speed_scale
-		vbox.add_child(speed_slider)
-		vbox.move_child(speed_slider, 4)
-		speed_slider.value_changed.connect(_on_speed_slider_changed)
+		speed_slider_label.show()
+		speed_slider.show()
+	else:
+		# If the new texture is NOT animated, hide the speed controls if they exist
+		if is_instance_valid(speed_slider_label):
+			speed_slider_label.queue_free()
+			speed_slider_label = null
+		if is_instance_valid(speed_slider):
+			speed_slider.queue_free()
+			speed_slider = null
 
 func _on_change_texture_btn_pressed():
 	#if speed_slider == HSlider.new():
@@ -239,43 +258,43 @@ func _on_speed_slider_changed(value):
 	speed_slider_label.text = "Speed: %s" %value
 	self.texture.speed_scale = value
 
+func _input(event: InputEvent) -> void:
+	if dragging and event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		if OverlayFunctions.ActiveDraggingWindowID == get_window().get_window_id():
+			if not event.pressed:
+				#Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+				dragging = false
+				OverlayFunctions.ActiveDraggingWindowID = -1 # Release the global lock
+				
+				if DisplayServer.mouse_get_position().distance_to(click_start_pos) < drag_threshold:
+					_on_click()
+					get_viewport().set_input_as_handled()
+	if dragging and event is InputEventMouseMotion:
+		get_window().position = DisplayServer.mouse_get_position() + click_offset
+		get_viewport().set_input_as_handled()
+
+	if dragging and OverlayFunctions.ActiveDraggingWindowID == get_window().get_window_id():
+		if event is InputEventMouseMotion:
+			get_window().position = DisplayServer.mouse_get_position() + click_offset
+		#OverlayFunctions.ForceWindowToTop(get_window().get_window_id())
+
 func _gui_input(event):
 	if (menu and menu.visible) or _menu_just_closed:
 		return
-	if event is InputEventMouseButton:
-		if menu.visible or _menu_just_closed:
-			dragging = false
-			return
-		if event.button_index == MOUSE_BUTTON_LEFT:
-			#print("Left Click!")
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 			if event.pressed:
-				dragging = false
-				click_start_pos = event.global_position
-				
-				# 1. Get current mouse pos in SCREEN pixels
-				var mouse_screen_pos = DisplayServer.mouse_get_position()
-				# 2. Calculate fixed distance from mouse to window top-left
-				click_offset = get_window().position - mouse_screen_pos
-				accept_event()
-			else:
-				if not dragging:
-					_on_click()
-					dragging = false
+				if OverlayFunctions.ActiveDraggingWindowID == -1:
+					OverlayFunctions.ActiveDraggingWindowID = get_window().get_window_id()
+					OverlayFunctions.ForceWindowToTop(get_window().get_window_id())
+					#Input.mouse_mode = Input.MOUSE_MODE_CONFINED
+					
+					dragging = true
+					click_start_pos = DisplayServer.mouse_get_position()
+					var mouse_screen_pos = DisplayServer.mouse_get_position()
+					click_offset = get_window().position - mouse_screen_pos
 					accept_event()
-				
-
-	if event is InputEventMouseMotion:
-		if menu.visible or _menu_just_closed or click_offset == Vector2i.ZERO:
-			return
-		if event.button_mask == MOUSE_BUTTON_MASK_LEFT:
-			var move_dist = event.global_position.distance_to(click_start_pos)
-			if move_dist > drag_threshold:
-				dragging = true
-			if dragging:
-				var current_mouse_pos = DisplayServer.mouse_get_position()
-				get_window().position = current_mouse_pos + click_offset
-				# dragging = false
-	
+			else:
+					pass
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
 		dragging = false
 		_menu_just_closed = false # Reset this just in case
@@ -283,6 +302,7 @@ func _gui_input(event):
 		var popup_pos = DisplayServer.mouse_get_position()
 		menu.popup(Rect2i(popup_pos.x, popup_pos.y, 200, 600))
 	accept_event()
+
 func _set(property: StringName, value) -> bool:
 	if property == "scale":
 		# Let the actual scale change happen
@@ -301,13 +321,52 @@ func _on_item_rect_changed():
 	get_window().size = Vector2i(scaled_size)
 		
 func _on_click():
-	
+
 	print("clicked")
 
-func _process(_delta: float) -> void:
+func _on_overlay_loaded():
+	my_material.set_shader_parameter("chroma_key", color_picker.color)
+
+func _process(_delta):
+	# Never go click-through while dragging or menu is open
+	if dragging or (menu and menu.visible): 
+		OverlayFunctions.SetClickThrough(false, get_window().get_window_id())
+		return
+
+	var is_solid = false
+	var mouse_pos = get_local_mouse_position()
+	
+	# 1. Basic bounds check
+	if get_rect().has_point(mouse_pos):
+		var img = texture.get_image()
+		# Account for scaling
+		var tex_x = int(mouse_pos.x / scale.x)
+		var tex_y = int(mouse_pos.y / scale.y)
+		
+		if tex_x >= 0 and tex_x < img.get_width() and tex_y >= 0 and tex_y < img.get_height():
+			var pixel = img.get_pixel(tex_x, tex_y)
+			
+			# 2. Replicate Shader Logic: Check Alpha and Chromakey
+			if pixel.a > 0.1:
+				if chromakey_switch.button_pressed:
+					var key_color = color_picker.color
+					var dist = Vector3(pixel.r, pixel.g, pixel.b).distance_to(Vector3(key_color.r, key_color.g, key_color.b))
+					var shader_precision = my_material.get_shader_parameter("precision")
+					if shader_precision == null:
+						shader_precision = 0.1 # Fallback value
+
+					if dist > shader_precision:
+						is_solid = true
+				else:
+					is_solid = true
+
+	# 3. If not over a solid pixel, make window click-through
+	if click_through_enabled:
+		OverlayFunctions.SetClickThrough(!is_solid, get_window().get_window_id())
+
 	alpha_slider.value = self.modulate.a
 	scale_slider.value = self.scale.x
-	my_material.set_shader_parameter("chroma_key", color_picker.color)
+	# my_material.set_shader_parameter("chroma_key", color_picker.color)
 	if is_instance_valid(speed_slider) and self.texture == AnimatedTexture:
 		speed_slider.value = self.texture.speed_scale
 	else: return

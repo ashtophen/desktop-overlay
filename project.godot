@@ -16,12 +16,14 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 
 config/name="Desktop_Overlay"
 run/main_scene="uid://5xi381h25aaw"
-config/features=PackedStringArray("4.6", "GL Compatibility")
+config/features=PackedStringArray("4.6", "C#", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [autoload]
 
 Globals="*uid://cppyaf60sojph"
+GlobalHotkey="*uid://dxe43v1fi4g78"
+OverlayFunctions="*uid://j472ol6bdnpm"
 
 [display]
 
@@ -33,6 +35,7 @@ window/subwindows/embed_subwindows=false
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 window/per_pixel_transparency/allowed=true
+window/vsync/vsync_mode=0
 
 [dotnet]
 

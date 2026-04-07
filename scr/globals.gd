@@ -1,11 +1,12 @@
 extends Node
 signal overlay_saved
+signal overlay_loaded
 signal display_msg(msg: String)
 var toggle_menu_hotkey_text = InputMap.action_get_events("Toggle Menu")[0].as_text()
 var screen_size: Vector2i
 var saved_overlays: PackedStringArray
 var been_warned = false # TEMP PLEASE GET RID OF
-
+var window_size
 var menu: CenterContainer
 
 #func _init() -> void:
@@ -21,7 +22,8 @@ var menu: CenterContainer
 
 
 func _ready():
-	
+	DisplayServer.enable_for_stealing_focus(OS.get_process_id())
+	GlobalHotkey.HotkeyPressed.connect(_on_global_hotkey_pressed)
 	screen_size = DisplayServer.screen_get_size()
 	
 	# 2. Subtract 1 pixel from both dimensions
@@ -32,17 +34,22 @@ func _ready():
 	
 	# 4. Optional: Center the window
 	var screen_center = DisplayServer.screen_get_size() / 2
-	var window_size = DisplayServer.window_get_size()
+	window_size = DisplayServer.window_get_size()
 	DisplayServer.window_set_position(screen_center - window_size / 2)
 	
 func toggle_menu():
 	menu.visible = not menu.visible
-	return
-	
+	if menu.visible:
+		menu.get_window().mouse_passthrough = false
+		DisplayServer.window_set_size(window_size)
+	else:
+		menu.get_window().mouse_passthrough = true
+		DisplayServer.window_set_size(Vector2i(0, 0))
 
-func _process(_delta: float) -> void:
-	if Input.is_action_just_pressed("Toggle Menu"):
-		toggle_menu()
+func _on_global_hotkey_pressed():
+	print("omg")
+	toggle_menu()
+
 
 func set_img(file, tex_rect: TextureRect = TextureRect.new()) -> TextureRect:
 	var image = Image.new()
@@ -126,6 +133,8 @@ func load_subwindows(save: String = "user://subwindows.cfg"):
 		tex_rect.chromakey_switch.button_pressed = config.get_value(section, "chromakey_switch_toggle", false)
 		if tex_rect.texture is AnimatedTexture:
 			tex_rect.texture.speed_scale = config.get_value(section, "speed_scale", 1)
+		await get_tree().process_frame # so my elements will have run their ready functions... probably
+		overlay_loaded.emit()
 
 func get_all_save_slots():
 	var saves = []
@@ -145,7 +154,7 @@ func save_all_subwindows(overlay_name: String = "base"):
 	
 	for i in range(windows.size()):
 		var win = windows[i]
-		var tex_rect = win.get_child(0) # Assumes TextureRect is the first child
+		var tex_rect = win.get_child(0) # Assumes TextureRect is the first child AS IT SHOULD ALWAYS BE
 		if tex_rect == null:
 			continue
 		var section = "Window_" + str(i)
