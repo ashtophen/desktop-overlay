@@ -8,6 +8,8 @@ var saved_overlays: PackedStringArray
 var been_warned = false # TEMP PLEASE GET RID OF
 var window_size
 var menu: CenterContainer
+var element_menu_w 
+
 
 #func _init() -> void:
 	#print("init")
@@ -121,8 +123,9 @@ func load_subwindows(save: String = "user://subwindows.cfg"):
 		tex_rect.modulate = config.get_value(section, "modulate", Color.WHITE)
 		tex_rect.flip_h = config.get_value(section, "flip_h", false)
 		tex_rect.flip_v = config.get_value(section, "flip_v", false)
-		tex_rect.stretch_mode = config.get_value(section, "stretch_mode", TextureRect.STRETCH_KEEP_ASPECT_CENTERED)
+		tex_rect.stretch_mode = config.get_value(section, "stretch_mode", TextureRect.STRETCH_SCALE)
 		tex_rect.scale = config.get_value(section, "scale", 1)
+		tex_rect.click_through_toggle.button_pressed = config.get_value(section, "click_through_toggle", true)
 		if config.has_section_key(section, "material"):
 			var mat_path = config.get_value(section, "material", null)
 			if mat_path != null:
@@ -170,6 +173,7 @@ func save_all_subwindows(overlay_name: String = "base"):
 		config.set_value(section, "flip_v", tex_rect.flip_v)
 		config.set_value(section, "stretch_mode", tex_rect.stretch_mode)
 		config.set_value(section, "scale", tex_rect.scale)
+		config.set_value(section, "click_through_toggle", tex_rect.click_through_enabled)
 		if tex_rect.material != null:
 			config.set_value(section, "material", tex_rect.material)
 			config.set_value(section, "picker_color", tex_rect.color_picker.color)

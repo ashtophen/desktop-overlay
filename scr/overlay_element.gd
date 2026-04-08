@@ -20,7 +20,8 @@ var flip_h_btn: CheckButton
 var flip_v_btn: CheckButton
 #var click_func
 # var click_through_switch
-var click_through_enabled: bool = false
+var click_through_enabled: bool = true
+var click_through_toggle: CheckButton
 
 ### Shader Variables ###
 var shader_code = """
@@ -61,7 +62,7 @@ func _ready():
 	add_child(menu)
 	
 	
-	var vbox = menu.get_child(0) #vbox was made in overlay_element_menu.gd
+	var vbox = menu.get_child(0) #vbox was made in element_menu.gd
 	
 	menu.transient = true
 	menu.exclusive = false
@@ -136,6 +137,11 @@ func _ready():
 	vbox.add_child(delete_element_btn)
 	delete_element_btn.pressed.connect(_on_delete_element_btn_pressed)
 	
+	click_through_toggle = CheckButton.new()
+	click_through_toggle.text = "Passthrough Transparent Areas"
+	click_through_toggle.button_pressed = click_through_enabled
+	click_through_toggle.pressed.connect(func(): click_through_enabled = !click_through_enabled)
+	vbox.add_child(click_through_toggle)
 	
 	### Shader Code For Chromakeying ###
 	
@@ -324,6 +330,7 @@ func _on_click():
 
 	print("clicked")
 
+
 func _on_overlay_loaded():
 	my_material.set_shader_parameter("chroma_key", color_picker.color)
 
@@ -339,10 +346,15 @@ func _process(_delta):
 	# 1. Basic bounds check
 	if get_rect().has_point(mouse_pos):
 		var img = texture.get_image()
-		# Account for scaling
-		var tex_x = int(mouse_pos.x / scale.x)
-		var tex_y = int(mouse_pos.y / scale.y)
+		var tex_size = texture.get_size()
+
+		var ratio_x = mouse_pos.x / size.x
+		var ratio_y = mouse_pos.y / size.y
+
+		var tex_x = int(ratio_x * tex_size.x)
+		var tex_y = int(ratio_y * tex_size.y)
 		
+		# 3. Double-check bounds before calling get_pixel
 		if tex_x >= 0 and tex_x < img.get_width() and tex_y >= 0 and tex_y < img.get_height():
 			var pixel = img.get_pixel(tex_x, tex_y)
 			
