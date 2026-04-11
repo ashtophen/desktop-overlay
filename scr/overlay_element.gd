@@ -176,23 +176,24 @@ func _ready():
 	# my_material.set_shader_parameter("precision", 0.15)
 	###
 	#clickthrough_switch
-	
+
 func _on_flip_h_btn_toggled(is_on: bool):
 	if is_on:
 		self.flip_h = true
 	else: self.flip_h = false
+
 func _on_flip_v_btn_toggled(is_on: bool):
 	if is_on:
 		self.flip_v = true
 	else: self.flip_v = false
-	
+
 func _on_alpha_slider_changed(value):
 	self.modulate.a = alpha_slider.value
 	alpha_slider_label.text = "Opacity %.1f%%" %(self.modulate.a * 100)
-	
+
 func _on_color_picker_color_changed(color: Color):
 	my_material.set_shader_parameter("chroma_key", color)
-	
+
 func _on_chromakey_switch_toggled(is_on: bool):
 	if is_on:
 		chroma_vbox.show()
@@ -203,7 +204,7 @@ func _on_chromakey_switch_toggled(is_on: bool):
 
 func _on_delete_element_btn_pressed():
 	get_window().queue_free()
-		
+
 func _on_file_selected(path):
 	Globals.set_img(path, self as TextureRect)
 	var vbox = menu.get_child(0)
@@ -243,16 +244,15 @@ func _on_change_texture_btn_pressed():
 	#	speed_slider.value = 1
 	scale_slider.value = 1
 	file_dialog.popup()
-	
 
 func _on_reset_btn_pressed():
 	scale_slider.value = 1 
+
 func _on_menu_hidden():
 	_menu_just_closed = true
 	await get_tree().process_frame
 	await get_tree().process_frame
 	_menu_just_closed = false
-	
 
 func _on_scale_slider_changed(value):
 	#print(menu.visible)
@@ -321,11 +321,11 @@ func _set(property: StringName, value) -> bool:
 func _update_window_to_scaled_size():
 	var scaled_size = size * scale
 	get_window().size = Vector2i(scaled_size)
-	
+
 func _on_item_rect_changed():
 	var scaled_size = size * scale
 	get_window().size = Vector2i(scaled_size)
-		
+
 func _on_click():
 
 	print("clicked")
@@ -341,18 +341,18 @@ func _process(_delta):
 		return
 
 	var is_solid = false
-	var mouse_pos = get_local_mouse_position()
-	
-	# 1. Basic bounds check
-	if get_rect().has_point(mouse_pos):
+	var mouse_pos = get_viewport().get_mouse_position()
+	var window_size = get_viewport().get_visible_rect().size
+
+	if mouse_pos.x >= 0 and mouse_pos.y >= 0 and mouse_pos.x <= window_size.x and mouse_pos.y <= window_size.y:
 		var img = texture.get_image()
 		var tex_size = texture.get_size()
 
-		var ratio_x = mouse_pos.x / size.x
-		var ratio_y = mouse_pos.y / size.y
-
+		var ratio_x = mouse_pos.x / (size.x * scale.x)
+		var ratio_y = mouse_pos.y / (size.y * scale.y)
 		var tex_x = int(ratio_x * tex_size.x)
 		var tex_y = int(ratio_y * tex_size.y)
+		print(tex_x, " ", tex_y)
 		
 		# 3. Double-check bounds before calling get_pixel
 		if tex_x >= 0 and tex_x < img.get_width() and tex_y >= 0 and tex_y < img.get_height():
