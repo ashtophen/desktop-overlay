@@ -1,10 +1,19 @@
 extends TextureRect
+# For choosing an exe for the overlay to launch
+var installed_apps: Dictionary = {}
+var item_list: ItemList
+var exe_path_input: LineEdit
+var exe_select_btn: Button
+var exe_id: String
+var exe_list_window: Window
 
 var dragging = false
 var click_offset = Vector2i.ZERO
 var click_start_pos = Vector2i.ZERO
 var drag_threshold = 5.0
 var menu: PopupPanel
+var exe_launcher_btn: CheckButton
+var exe_vbox: VBoxContainer
 var scale_slider_label: Label
 var speed_slider_label: Label
 var alpha_slider_label: Label
@@ -18,10 +27,12 @@ var color_picker: ColorPicker
 var alpha_slider: HSlider
 var flip_h_btn: CheckButton
 var flip_v_btn: CheckButton
+
 #var click_func
 # var click_through_switch
 var click_through_enabled: bool = true
 var click_through_toggle: CheckButton
+var make_desktop_icon_toggle: CheckButton
 
 ### Shader Variables ###
 var shader_code = """
@@ -67,6 +78,36 @@ func _ready():
 	menu.transient = true
 	menu.exclusive = false
 	menu.unfocusable = false
+	
+	exe_launcher_btn = CheckButton.new()
+	exe_launcher_btn.text = "Launch Application On Left Click"
+	
+	vbox.add_child(exe_launcher_btn)
+	
+	exe_vbox = VBoxContainer.new()
+	vbox.add_child(exe_vbox)
+	exe_vbox.hide()
+	exe_launcher_btn.toggled.connect(func(is_pressed): exe_vbox.visible = is_pressed)
+	
+	var exe_man_btn: CheckButton = CheckButton.new()
+	exe_man_btn.text = "Manually Choose Path?"
+	exe_vbox.add_child(exe_man_btn)
+	
+	
+	exe_path_input = LineEdit.new()
+	exe_path_input.hide()
+	exe_path_input.placeholder_text = "C:/PATH/TO/YOUR/APP"
+	#exe_path_input.text_submitted.connect()
+	#ADD FUNCTION
+	exe_vbox.add_child(exe_path_input)
+	exe_man_btn.toggled.connect(func(is_pressed): exe_path_input.visible = is_pressed)
+	
+	exe_select_btn = Button.new()
+	exe_select_btn.text = "Select App To Launch"
+	exe_select_btn.pressed.connect(load_windows_apps)
+	exe_vbox.add_child(exe_select_btn)
+	
+	
 	
 	scale_slider_label = Label.new()
 	scale_slider_label.text = "Scale: %s" %self.scale.x
@@ -143,6 +184,35 @@ func _ready():
 	click_through_toggle.pressed.connect(func(): click_through_enabled = !click_through_enabled)
 	vbox.add_child(click_through_toggle)
 	
+	make_desktop_icon_toggle = CheckButton.new()
+	make_desktop_icon_toggle.text = "Make Interactive"
+	#make_desktop_icon_toggle.button_pressed = desktop
+	
+	###ITEMLIST FOR EXES###
+	
+	exe_list_window = Window.new()
+	exe_list_window.title = "Select Application"
+	exe_list_window.size = Vector2i(450,350)
+	exe_list_window.position = Vector2i(150, 150)
+	#exe_list_window.translucent = true
+	exe_list_window.close_requested.connect(func(): exe_list_window.hide())
+	
+	
+	item_list = ItemList.new()
+	item_list.name = "AppList"
+	item_list.custom_minimum_size = Vector2(400, 300)
+	item_list.position = Vector2(100, 100)
+	item_list.select_mode = ItemList.SELECT_SINGLE
+	item_list.item_selected.connect(_on_item_selected)
+	#item_list.hide()
+	item_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	item_list.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	item_list.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+
+	exe_list_window.add_child(item_list)
+	add_child(exe_list_window)
+	exe_list_window.hide()
+	
 	### Shader Code For Chromakeying ###
 	
 	chromakey_switch = CheckButton.new()
@@ -168,6 +238,7 @@ func _ready():
 	my_material = ShaderMaterial.new()
 	my_material.shader = my_shader
 	
+	
 	Globals.connect("overlay_loaded", _on_overlay_loaded)
 	# self.material = my_material
 
@@ -176,6 +247,49 @@ func _ready():
 	# my_material.set_shader_parameter("precision", 0.15)
 	###
 	#clickthrough_switch
+	
+
+func _on_item_selected(index: int):
+	exe_id = installed_apps[item_list.get_item_text(index)]
+	exe_list_window.hide()
+	
+func load_windows_apps():
+	var output = []
+	var arguments = [
+		"-NoProfile", 
+		"-Command", 
+		"Get-StartApps | ForEach-Object { $_.Name + ',' + $_.AppID }"
+	]
+	
+	OS.execute("powershell", arguments, output, true)
+	
+	if output.size() > 0:
+		parse_apps(output[0])
+		
+func parse_apps(raw_output: String):
+	item_list.clear()
+	installed_apps.clear()
+	
+	var lines = raw_output.split("\n", false)
+	
+	for line in lines:
+		line = line.strip_edges()
+		if line.contains(","):
+			var parts = line.split(",", true, 1)
+			var app_name = parts[0]
+			var app_id = parts[1]
+			
+			installed_apps[app_name] = app_id
+			item_list.add_item(app_name)
+	exe_list_window.show()
+
+
+func launch_app(app_id: String) -> void:
+	if app_id:
+		var output = []
+		
+		var arguments = ["shell:AppsFolder\\" + app_id]
+		OS.execute("explorer.exe", arguments, output, false)
 
 func _on_flip_h_btn_toggled(is_on: bool):
 	if is_on:
@@ -327,8 +441,8 @@ func _on_item_rect_changed():
 	get_window().size = Vector2i(scaled_size)
 
 func _on_click():
-
-	print("clicked")
+	if exe_id:
+		launch_app(exe_id)
 
 
 func _on_overlay_loaded():
@@ -352,7 +466,7 @@ func _process(_delta):
 		var ratio_y = mouse_pos.y / (size.y * scale.y)
 		var tex_x = int(ratio_x * tex_size.x)
 		var tex_y = int(ratio_y * tex_size.y)
-		print(tex_x, " ", tex_y)
+		#print(tex_x, " ", tex_y)
 		
 		# 3. Double-check bounds before calling get_pixel
 		if tex_x >= 0 and tex_x < img.get_width() and tex_y >= 0 and tex_y < img.get_height():
