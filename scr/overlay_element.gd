@@ -7,6 +7,7 @@ var exe_select_btn: Button
 var exe_id: String
 var exe_list_window: Window
 
+var exe_man_btn: CheckButton
 var dragging = false
 var click_offset = Vector2i.ZERO
 var click_start_pos = Vector2i.ZERO
@@ -89,7 +90,7 @@ func _ready():
 	exe_vbox.hide()
 	exe_launcher_btn.toggled.connect(func(is_pressed): exe_vbox.visible = is_pressed)
 	
-	var exe_man_btn: CheckButton = CheckButton.new()
+	exe_man_btn = CheckButton.new()
 	exe_man_btn.text = "Manually Choose Path?"
 	exe_vbox.add_child(exe_man_btn)
 	

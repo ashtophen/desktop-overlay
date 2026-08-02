@@ -119,7 +119,14 @@ func load_subwindows(save: String = "user://subwindows.cfg"):
 		var win = create_window(file, pos, size)
 		var tex_rect = win.get_child(0)
 		
+		# DUDE, LOAD THEM DYNAMICALLY HOLY MOLY
 		# Restore the modifications
+		
+		tex_rect.exe_launcher_btn.button_pressed = config.get_value(section, "exe_launcher", false)
+		tex_rect.make_desktop_icon_toggle.button_pressed = config.get_value(section, "make_desktop_icon", false)
+		tex_rect.exe_man_btn.button_pressed = config.get_value(section, "exe_man_path_btn", false)
+		tex_rect.exe_id = config.get_value(section, "app_id", "")
+		tex_rect.exe_path_input.text = config.get_value(section, "exe_path_txt", "C:/PATH/TO/YOUR/APP")
 		tex_rect.modulate = config.get_value(section, "modulate", Color.WHITE)
 		tex_rect.flip_h = config.get_value(section, "flip_h", false)
 		tex_rect.flip_v = config.get_value(section, "flip_v", false)
@@ -167,7 +174,13 @@ func save_all_subwindows(overlay_name: String = "base"):
 		config.set_value(section, "pos", win.position)
 		config.set_value(section, "size", win.size)
 		
+		#Should really automate this to grab all the important info
 		# Save TextureRect modifications
+		config.set_value(section, "exe_launcher", tex_rect.exe_launcher_btn.button_pressed)
+		config.set_value(section, "make_desktop_icon", tex_rect.make_desktop_icon_toggle.button_pressed)
+		config.set_value(section, "exe_man_path_btn", tex_rect.exe_man_btn.button_pressed)
+		config.set_value(section, "app_id", tex_rect.exe_id)
+		config.set_value(section, "exe_path_txt", tex_rect.exe_path_input.text)
 		config.set_value(section, "modulate", tex_rect.modulate)
 		config.set_value(section, "flip_h", tex_rect.flip_h)
 		config.set_value(section, "flip_v", tex_rect.flip_v)
